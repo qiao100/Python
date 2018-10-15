@@ -1,3 +1,4 @@
+# coding=UTF-8
 import random
 import time
 
@@ -5,14 +6,19 @@ import requests
 from openpyxl import Workbook
 import pymysql.cursors
 
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 
 def get_conn():
     '''建立数据库连接'''
     conn = pymysql.connect(host='localhost',
                                 user='root',
-                                password='root',
+                                password='password',
                                 db='python',
-                                charset='utf8mb4',
+                                charset='utf8',
                                 cursorclass=pymysql.cursors.DictCursor)
     return conn
 
@@ -20,7 +26,7 @@ def get_conn():
 def insert(conn, info):
     '''数据写入数据库'''
     with conn.cursor() as cursor:
-        sql = "INSERT INTO `python` (`shortname`, `fullname`, `industryfield`, `companySize`, `salary`, `city`, `education`) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        sql = "INSERT INTO `lagou` (`shortname`, `fullname`, `industryfield`, `companySize`, `salary`, `city`, `education`) VALUES (%s, %s, %s, %s, %s, %s, %s)"
         cursor.execute(sql, info)
     conn.commit()
 
@@ -47,6 +53,7 @@ def get_json(url, page, lang_name):
     list_con = json['content']['positionResult']['result']
     info_list = []
     for i in list_con:
+
         info = []
         info.append(i.get('companyShortName', '无'))
         info.append(i.get('companyFullName', '无'))
@@ -61,8 +68,10 @@ def get_json(url, page, lang_name):
 
 def main():
     lang_name = 'python'
-    wb = Workbook()  # 打开 excel 工作簿
-    conn = get_conn()  # 建立数据库连接  不存数据库 注释此行
+    # 打开 excel 工作簿
+    wb = Workbook()
+    # 建立数据库连接  不存数据库 注释此行
+    conn = get_conn()
     for i in ['北京', '上海', '广州', '深圳', '杭州']:   # 五个城市
         page = 1
         ws1 = wb.active
@@ -70,9 +79,9 @@ def main():
         url = 'https://www.lagou.com/jobs/positionAjax.json?city={}&needAddtionalResult=false'.format(i)
         while page < 31:   # 每个城市30页信息
             info = get_json(url, page, lang_name)
-            page += 1
             print(i, 'page', page)
-            time.sleep(random.randint(10, 20))
+            page += 1
+            time.sleep(random.randint(5, 10))
             for row in info:
                 insert(conn, tuple(row))  # 插入数据库，若不想存入 注释此行
                 ws1.append(row)

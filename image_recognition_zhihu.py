@@ -9,6 +9,11 @@ from PIL import Image
 import uuid
 
 
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+
     
 def recognition_captcha(data):
     ''' 识别验证码 '''

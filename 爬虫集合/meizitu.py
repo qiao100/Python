@@ -1,8 +1,17 @@
+# coding=UTF-8
+
 import requests
 import os
 import time
 import threading
 from bs4 import BeautifulSoup
+
+
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 
 
 def download_page(url):
